@@ -26,7 +26,6 @@ import numpy as np
 from colour import Color
 
 from ..utils.bezier import interpolate
-from ..utils.simple_functions import clip_in_place
 from ..utils.space_ops import normalize
 
 
@@ -491,8 +490,9 @@ def color_to_int_rgb(color: Color) -> np.ndarray:
 
 
 def color_to_int_rgba(color: Color, opacity: float = 1.0) -> np.ndarray:
-    alpha = int(255 * opacity)
-    return np.append(color_to_int_rgb(color), alpha)
+    alpha_multiplier = np.vectorize(lambda x: int(x * opacity))
+
+    return alpha_multiplier(np.append(color_to_int_rgb(color), 255))
 
 
 def color_gradient(
@@ -547,5 +547,4 @@ def get_shaded_rgb(
     if factor < 0:
         factor *= 0.5
     result = rgb + factor
-    clip_in_place(rgb + factor, 0, 1)
     return result
